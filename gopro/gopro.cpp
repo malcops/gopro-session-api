@@ -81,13 +81,38 @@ void GoPro::locateOff(){
     request.execute();
 }
 
-void GoPro::setPhotoMode(int mode){
+void GoPro::setMode(std::string mode){
+    char buf[100];
+    snprintf(buf, sizeof(buf), "http://10.5.5.9/gp/gpControl/command/mode?p=%d", primaryModes[mode]);
+    std::string newMode(buf);
+    HTTPRequest request(newMode);
+    request.execute();
+}
+
+void GoPro::setVideoMode(std::string mode){
 
         char buf[100];
-        snprintf(buf, sizeof(buf), "http://10.5.5.9/gp/gpControl/command/sub_mode?mode=1&sub_mode=%d", mode);
-        std::string photoMode(buf);
-        std::cout << photoMode << std::endl;
-        HTTPRequest request(photoMode);
+        snprintf(buf, sizeof(buf), "http://10.5.5.9/gp/gpControl/command/sub_mode?mode=%d&sub_mode=%d", primaryModes["Video"], videoSubmodes[mode]);
+        std::string subMode(buf);
+        HTTPRequest request(subMode);
+        request.execute();
+}
+
+void GoPro::setPhotoMode(std::string mode){
+
+        char buf[100];
+        snprintf(buf, sizeof(buf), "http://10.5.5.9/gp/gpControl/command/sub_mode?mode=%d&sub_mode=%d", primaryModes["Photo"], photoSubmodes[mode]);
+        std::string subMode(buf);
+        HTTPRequest request(subMode);
+        request.execute();
+}
+
+void GoPro::setMultishotMode(std::string mode){
+
+        char buf[100];
+        snprintf(buf, sizeof(buf), "http://10.5.5.9/gp/gpControl/command/sub_mode?mode=%d&sub_mode=%d", primaryModes["Multishot"], multishotSubmodes[mode]);
+        std::string subMode(buf);
+        HTTPRequest request(subMode);
         request.execute();
 }
 
@@ -136,18 +161,12 @@ bool GoPro::sdCardInserted(){
 }
 
 unsigned GoPro::getMode(){
-    // Video - 0
-    // Photo - 1
-    // MultiShot - 2
     auto j = nlohmann::json::parse(this->m_currentStatus.c_str());
     unsigned currentMode = j["status"]["43"];
     return currentMode;
 }
 
 unsigned GoPro::getSubMode(){
-    // 0 = Video/Single Pic/Burst
-    // 1 = TL Video/Continuous/TimeLapse
-    // 2 = Video+Photo/NightPhoto/NightLapse
     auto j = nlohmann::json::parse(this->m_currentStatus.c_str());
     unsigned subMode = j["status"]["44"];
     return subMode;

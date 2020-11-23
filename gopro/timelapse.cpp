@@ -6,19 +6,11 @@ int main(void){
 
     GoPro gp;
     std::cout << gp.getStatus() << std::endl;
-    std::cout << gp.cameraName() << std::endl;
-
-    // night photo mode
-    std::cout << "setPhotoMode" << std::endl;
-    gp.setPhotoMode(2);
+    gp.setPhotoMode("Single");
     sleep(2);
+    gp.setShutterExposure(0);
 
-    // shutter 2 sec
-    gp.setShutterExposure(1);
-    std::cout << gp.getStatus() << std::endl;
-    std::cout << gp.cameraName() << std::endl;
-
-    while(1) {
+    while(gp.getBatteryLevel() > 0 && gp.getSpaceRemaining() > 5000) {
         std::cout << "photo" << std::endl;
         gp.takePhoto();
         sleep(30);
