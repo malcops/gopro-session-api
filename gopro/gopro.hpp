@@ -12,6 +12,7 @@ class GoPro {
         void stopVideo();
         void locateOn();
         void locateOff();
+        void voiceControl(int mode);
         void setMode(std::string mode);
         void setVideoMode(std::string mode);
         void setPhotoMode(std::string mode);

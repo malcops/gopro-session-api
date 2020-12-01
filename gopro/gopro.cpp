@@ -81,6 +81,14 @@ void GoPro::locateOff(){
     request.execute();
 }
 
+void GoPro::voiceControl(int mode){
+    char buf[100];
+    snprintf(buf, sizeof(buf), "http://10.5.5.9/gp/gpControl/setting/86/%d", mode);
+    std::string voiceControl(buf);
+    HTTPRequest request(voiceControl);
+    request.execute();
+}
+
 void GoPro::setMode(std::string mode){
     char buf[100];
     snprintf(buf, sizeof(buf), "http://10.5.5.9/gp/gpControl/command/mode?p=%d", primaryModes[mode]);
