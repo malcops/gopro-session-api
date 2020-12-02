@@ -18,6 +18,10 @@ class GoPro {
         void setPhotoMode(std::string mode);
         void setMultishotMode(std::string mode);
         void setShutterExposure(int exposure);
+        void refreshContents();
+        void deleteContents();
+        void downloadContents();
+        std::map<std::string, int> parseContents(std::string);
         std::string getStatus();
 
         // status
@@ -30,6 +34,7 @@ class GoPro {
         // settings
         unsigned getOrientation();
         void printDifference(std::string string1, std::string string2);
+        std::map<std::string, int> m_contents;
         std::string m_currentStatus;
 };
 

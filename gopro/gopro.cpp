@@ -33,6 +33,83 @@ void GoPro::printDifference(std::string string1, std::string string2){
     }
 }
 
+std::map<std::string, int> GoPro::parseContents(std::string contentsString){
+
+    auto contentsJson = nlohmann::json::parse(contentsString.c_str());
+    std::cout << contentsJson << std::endl;
+
+    std::map<std::string, int> contents = {};
+    if (contentsJson["media"].empty()){
+        this->m_contents = contents;
+        return contents;
+    }
+
+    std::string cameraName = contentsJson["media"][0]["d"];
+    auto content = contentsJson["media"][0]["fs"];
+    nlohmann::json::iterator mediaIt = content.begin();
+    for(; mediaIt != content.end(); ++mediaIt){
+        std::string fileName = cameraName;
+        fileName += "/";
+        fileName += mediaIt.value()["n"];
+        std::string fileSize = (mediaIt.value()["s"]);
+        contents[fileName] = std::stoi(fileSize);
+    }
+    this->m_contents = contents;
+    return contents;
+}
+
+void GoPro::refreshContents(){
+    
+    std::string contents = "http://10.5.5.9:8080/gp/gpMediaList";
+    HTTPRequest request(contents);
+    std::string response = request.execute();
+    std::cout << response << std::endl;
+    auto contentsMap = parseContents(response);
+    m_contents = contentsMap;
+}
+
+void GoPro::deleteContents(){
+
+    std::string deletion = "http://10.5.5.9/gp/gpControl/command/storage/delete?p=";
+    for(auto mediaIt = m_contents.begin(); mediaIt != m_contents.end(); ++mediaIt){
+        std::string deleteUrl = deletion;
+        deleteUrl += mediaIt->first;
+        std::cout << deleteUrl << std::endl;
+
+        HTTPRequest deletion(deleteUrl);
+        deletion.execute();
+    }
+    refreshContents();
+}
+
+void GoPro::downloadContents(){
+    
+    std::string dcim =  "http://10.5.5.9:8080/videos/DCIM/";
+    for(auto mediaIt = m_contents.begin(); mediaIt != m_contents.end(); ++mediaIt){
+        std::string downloadUrl = dcim;
+        downloadUrl += mediaIt->first;
+        std::cout << downloadUrl << std::endl;
+        HTTPRequest download(downloadUrl);
+        std::string img = download.execute();
+        
+        const char delim = '/';
+        std::string::size_type beg = 0;
+        std::string fileName;
+        for (auto end = 0; (end = downloadUrl.find(delim, end)) != std::string::npos; ++end){
+            beg = end + 1;
+            fileName = downloadUrl.substr(beg, end - beg);
+        }
+        std::cout << fileName << std::endl;
+
+        FILE* fp = fopen(fileName.c_str(), "wb");
+        if (fp == NULL){
+            return;
+        }
+        std::cout << fwrite(img.c_str(), img.size(), 1, fp) << std::endl;
+        fclose(fp);
+    }
+}
+
 void GoPro::keepOn(){
     std::string keepOn = "http://10.5.5.9/gp/gpControl/setting/59/0";
     HTTPRequest request1(keepOn);

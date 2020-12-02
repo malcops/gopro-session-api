@@ -14,6 +14,7 @@ std::string HTTPRequest::execute(){
         curl_easy_setopt(curl, CURLOPT_URL, m_url.c_str());
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
         curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L);
         curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
         curl_easy_setopt(curl, CURLOPT_TCP_KEEPIDLE, 120L);
         curl_easy_setopt(curl, CURLOPT_TCP_KEEPINTVL, 60L);

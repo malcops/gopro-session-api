@@ -85,6 +85,41 @@ TEST(StatusParsing, orientation){
     EXPECT_EQ(gp.getOrientation(), 0);
 }
 
+static std::string exampleContents = "{\"id\":\"590469854273051768\",\"media\":[{\"d\":\"100GOPRO\",\"fs\":[{\"n\":\"GOPR1930.MP4\",\"mod\":\"1606495504\",\"ls\":\"469371\",\"s\":\"5395439\"},\
+{\"n\":\"GOPR1931.JPG\",\"mod\":\"1606496910\",\"s\":\"3620740\"},\
+{\"n\":\"GOPR1932.JPG\",\"mod\":\"1606496942\",\"s\":\"3124765\"},\
+{\"n\":\"GOPR1933.JPG\",\"mod\":\"1606496972\",\"s\":\"3088423\"}]}]}";
+
+static std::string emptyContents = "{\"id\":\"590469854273051768\",\"media\":[]}";
+
+TEST(MediaParsing, photos){
+    GoPro gp;
+    std::map<std::string, int> contents = gp.parseContents(exampleContents);
+    EXPECT_EQ(contents.size(), 4);
+    EXPECT_EQ(contents["100GOPRO/GOPR1930.MP4"], 5395439);
+    EXPECT_EQ(contents["100GOPRO/GOPR1931.JPG"], 3620740);
+    EXPECT_EQ(contents["100GOPRO/GOPR1932.JPG"], 3124765);
+    EXPECT_EQ(contents["100GOPRO/GOPR1933.JPG"], 3088423);
+}
+
+TEST(MediaParsing, empty){
+    GoPro gp;
+    std::map<std::string, int> contents = gp.parseContents(emptyContents);
+    EXPECT_EQ(contents.size(), 0);
+}
+
+TEST(MediaDownload, photos){
+    GoPro gp;
+    std::map<std::string, int> contents = gp.parseContents(exampleContents);
+    gp.downloadContents();
+}
+
+TEST(MediaDelete, photos){
+    GoPro gp;
+    std::map<std::string, int> contents = gp.parseContents(exampleContents);
+    gp.deleteContents();
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
